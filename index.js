@@ -28,7 +28,7 @@ app.post("/", async (req, res) => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: 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
+            Authorization: "Bearer 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"
           }
         }
       );
