@@ -1,4 +1,4 @@
-require('dotenv').config(); // 載入 .env 環境變數
+require('dotenv').config(); // Load environment variables from .env
 
 const express = require('express');
 const app = express();
@@ -7,30 +7,30 @@ const axios = require('axios');
 
 app.use(express.json());
 
-// 測試服務器是否正常運行的端點
+// Test endpoint to check if the server is running
 app.get('/', (req, res) => {
     res.send('Webhook server is running!');
 });
 
-// 處理 UltraMSG Webhook 請求的端點
+// Endpoint to handle UltraMSG Webhook requests
 app.post('/', async (req, res) => {
     const message = req.body;
-    console.log('收到訊息：', JSON.stringify(message, null, 2));
+    console.log('Received message:', JSON.stringify(message, null, 2));
 
-    // 直接從 req.body 提取 from 和 body
+    // Extract the sender and message body directly from req.body
     const from = message.from;
     const text = message.body;
 
-    // 檢查必要字段是否存在
+    // Check if required fields are present
     if (!from || !text) {
-        console.log('缺少 from 或 text 欄位：', message);
-        res.sendStatus(400); // 回覆 400 表示請求無效
+        console.log('Missing from or text field:', message);
+        res.sendStatus(400); // Return 400 for invalid request
         return;
     }
 
     try {
-        // 呼叫 OpenAI API
-        console.log('正在呼叫 ChatGPT API，訊息：', text);
+        // Call OpenAI API
+        console.log('Calling ChatGPT API with message:', text);
         const gpt = await axios.post(
             'https://api.openai.com/v1/chat/completions',
             {
@@ -47,10 +47,10 @@ app.post('/', async (req, res) => {
         );
 
         const reply = gpt.data.choices[0].message.content;
-        console.log('ChatGPT 回應：', reply);
+        console.log('ChatGPT response:', reply);
 
-        // 回覆訊息到 UltraMSG
-        console.log('正在發送回覆到 UltraMSG：', { to: from, body: reply });
+        // Send reply to UltraMSG
+        console.log('Sending reply to UltraMSG:', { to: from, body: reply });
         await axios.post(
             'https://api.ultramsg.com/instance115545/messages/chat',
             {
@@ -60,15 +60,15 @@ app.post('/', async (req, res) => {
             }
         );
 
-        console.log('回覆已成功發送');
+        console.log('Reply sent successfully');
     } catch (error) {
-        console.error('發送錯誤：', error.response?.data || error.message);
+        console.error('Error:', error.response?.data || error.message);
     }
 
     res.sendStatus(200);
 });
 
-// 啟動服務器
+// Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
