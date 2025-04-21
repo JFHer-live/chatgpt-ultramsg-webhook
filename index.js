@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const axios = require('axios');
-ㄇ
+
 app.use(express.json());
 
 // 測試服務器是否正常運行的端點
