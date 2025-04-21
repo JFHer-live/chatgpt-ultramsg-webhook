@@ -38,11 +38,14 @@ app.post("/", async (req, res) => {
       const reply = gpt.data.choices[0].message.content;
 
       // 回覆訊息到 UltraMsg
-      await axios.post("https://api.ultramsg.com/instance115545/messages/chat", {
-        token: process.env.ULTRAMSG_TOKEN,
-        to,
-        body: reply,
-      });
+      await axios.post(
+        "https://api.ultramsg.com/instance115545/messages/chat",
+        {
+          token: process.env.ULTRAMSG_TOKEN,
+          to,
+          body: reply,
+        }
+      );
     } catch (error) {
       console.error("發送錯誤：", error);
     }
