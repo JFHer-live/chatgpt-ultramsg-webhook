@@ -17,11 +17,33 @@ app.post("/", async (req, res) => {
   const text = message?.data?.body;
 
   if (to && text) {
-    await axios.post("https://api.ultramsg.com/你的_INSTANCE_ID/messages/chat", {
-      token: "你的_TOKEN",
-      to,
-      body: `你剛剛說了：${text}`,
-    });
+    try {
+      // 呼叫 OpenAI API
+      const gpt = await axios.post(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: text }]
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer sk-proj-你的新金鑰貼這裡"
+          }
+        }
+      );
+
+      const reply = gpt.data.choices[0].message.content;
+
+      // 回覆訊息到 UltraMsg
+      await axios.post("https://api.ultramsg.com/instance115545/messages/chat", {
+        token: "56qu0ugexq5foc51",
+        to,
+        body: reply
+      });
+    } catch (error) {
+      console.error("發送錯誤：", error);
+    }
   }
 
   res.sendStatus(200);
