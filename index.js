@@ -1,3 +1,5 @@
+require("dotenv").config(); // 載入 .env 環境變數
+
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +30,7 @@ app.post("/", async (req, res) => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer sk-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",
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           },
         }
       );
@@ -37,7 +39,7 @@ app.post("/", async (req, res) => {
 
       // 回覆訊息到 UltraMsg
       await axios.post("https://api.ultramsg.com/instance115545/messages/chat", {
-        token: "56qu0ugqexq6foc51",
+        token: process.env.ULTRAMSG_TOKEN,
         to,
         body: reply,
       });
