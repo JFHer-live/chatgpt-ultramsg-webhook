@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load environment variables from .env
+require('dotenv').config(); // 載入 .env 環境變數
 
 const express = require('express');
 const app = express();
@@ -7,30 +7,30 @@ const axios = require('axios');
 
 app.use(express.json());
 
-// Test endpoint to check if the server is running
+// 測試服務器是否正常運行的端點
 app.get('/', (req, res) => {
     res.send('Webhook server is running!');
 });
 
-// Endpoint to handle UltraMSG Webhook requests
+// 處理 UltraMSG Webhook 請求的端點
 app.post('/', async (req, res) => {
     const message = req.body;
-    console.log('Received message:', JSON.stringify(message, null, 2));
+    console.log('收到訊息：', JSON.stringify(message, null, 2));
 
-    // Extract the sender and message body directly from req.body
-    const from = message.from;
-    const text = message.body;
+    // 從 message.data 中提取 from 和 body
+    const from = message.data?.from;
+    const text = message.data?.body;
 
-    // Check if required fields are present
+    // 檢查必要字段是否存在
     if (!from || !text) {
-        console.log('Missing from or text field:', message);
-        res.sendStatus(400); // Return 400 for invalid request
+        console.log('缺少 from 或 text 欄位：', message);
+        res.sendStatus(400); // 回覆 400 表示請求無效
         return;
     }
 
     try {
-        // Call OpenAI API
-        console.log('Calling ChatGPT API with message:', text);
+        // 呼叫 OpenAI API
+        console.log('正在呼叫 ChatGPT API，訊息：', text);
         const gpt = await axios.post(
             'https://api.openai.com/v1/chat/completions',
             {
@@ -47,10 +47,10 @@ app.post('/', async (req, res) => {
         );
 
         const reply = gpt.data.choices[0].message.content;
-        console.log('ChatGPT response:', reply);
+        console.log('ChatGPT 回應：', reply);
 
-        // Send reply to UltraMSG
-        console.log('Sending reply to UltraMSG:', { to: from, body: reply });
+        // 回覆訊息到 UltraMSG
+        console.log('正在發送回覆到 UltraMSG：', { to: from, body: reply });
         await axios.post(
             'https://api.ultramsg.com/instance115545/messages/chat',
             {
@@ -60,15 +60,15 @@ app.post('/', async (req, res) => {
             }
         );
 
-        console.log('Reply sent successfully');
+        console.log('回覆已成功發送');
     } catch (error) {
-        console.error('Error:', error.response?.data || error.message);
+        console.error('發送錯誤：', error.response?.data || error.message);
     }
 
     res.sendStatus(200);
 });
 
-// Start the server
+// 啟動服務器
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
