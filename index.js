@@ -23,13 +23,13 @@ app.post("/", async (req, res) => {
         "https://api.openai.com/v1/chat/completions",
         {
           model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: text }]
+          messages: [{ role: "user", content: text }],
         },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer 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"
-          }
+            Authorization: "Bearer sk-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",
+          },
         }
       );
 
@@ -37,11 +37,10 @@ app.post("/", async (req, res) => {
 
       // 回覆訊息到 UltraMsg
       await axios.post("https://api.ultramsg.com/instance115545/messages/chat", {
-        token: "56qu0ugexq5foc51",
+        token: "56qu0ugqexq6foc51",
         to,
-        body: reply
+        body: reply,
       });
-
     } catch (error) {
       console.error("發送錯誤：", error);
     }
