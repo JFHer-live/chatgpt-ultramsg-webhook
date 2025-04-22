@@ -72,3 +72,4 @@ app.post('/', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+Update index.js to only reply to messages where fromMe is false
