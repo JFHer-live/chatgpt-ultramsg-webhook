@@ -17,14 +17,22 @@ app.post('/', async (req, res) => {
     const message = req.body;
     console.log('收到訊息：', JSON.stringify(message, null, 2));
 
-    // 從 message.data 中提取 from 和 body
+    // 從 message.data 中提取 from, body 和 fromMe
     const from = message.data?.from;
     const text = message.data?.body;
+    const fromMe = message.data?.fromMe;
 
     // 檢查必要字段是否存在
     if (!from || !text) {
         console.log('缺少 from 或 text 欄位：', message);
         res.sendStatus(400); // 回覆 400 表示請求無效
+        return;
+    }
+
+    // 如果訊息是自己發送的（fromMe: true），則不回覆
+    if (fromMe) {
+        console.log('訊息是自己發送的，不予回覆：', message);
+        res.sendStatus(200);
         return;
     }
 
@@ -49,7 +57,7 @@ app.post('/', async (req, res) => {
         const reply = gpt.data.choices[0].message.content;
         console.log('ChatGPT 回應：', reply);
 
-        // 回覆訊息到 UltraMSG
+        // 回覆訊息到 UltraMSG，確保回覆發送給訊息發送者
         console.log('正在發送回覆到 UltraMSG：', { to: from, body: reply });
         await axios.post(
             'https://api.ultramsg.com/instance115545/messages/chat',
@@ -72,4 +80,3 @@ app.post('/', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-Update index.js to only reply to messages where fromMe is false
