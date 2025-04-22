@@ -62,17 +62,4 @@ app.post('/', async (req, res) => {
         console.log('轉換後的回覆目標號碼：', toNumber);
 
         // 回覆訊息到 UltraMSG，使用轉換後的號碼
-        console.log('正在發送回覆到 UltraMSG：', { to: toNumber, body: reply });
-        const response = await axios.post(
-            'https://api.ultramsg.com/instance115545/messages/chat',
-            {
-                token: process.env.ULTRAMSG_TOKEN,
-                to: toNumber, // 使用轉換後的號碼
-                body: reply,
-            }
-        );
-
-        console.log('UltraMSG API 回應：', response.data);
-        console.log('回覆已成功發送');
-    } catch (error) {
-        console.error('發送錯誤：', error
+        console.log('正在發送回覆到 UltraMSG：', {
