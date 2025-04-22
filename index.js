@@ -37,6 +37,13 @@ app.post('/', async (req, res) => {
     }
 
     try {
+        // 檢查環境變數是否存在
+        if (!process.env.OPENAI_API_KEY) {
+            console.error('錯誤：OPENAI_API_KEY 未設置');
+            res.sendStatus(500);
+            return;
+        }
+
         // 呼叫 OpenAI API
         console.log('正在呼叫 ChatGPT API，訊息：', text);
         const gpt = await axios.post(
@@ -61,5 +68,34 @@ app.post('/', async (req, res) => {
         const toNumber = '+' + from.split('@')[0]; // 從 "19056588845@c.us" 轉為 "+19056588845"
         console.log('轉換後的回覆目標號碼：', toNumber);
 
+        // 檢查 ULTRAMSG_TOKEN 是否存在
+        if (!process.env.ULTRAMSG_TOKEN) {
+            console.error('錯誤：ULTRAMSG_TOKEN 未設置');
+            res.sendStatus(500);
+            return;
+        }
+
         // 回覆訊息到 UltraMSG，使用轉換後的號碼
-        console.log('正在發送回覆到 UltraMSG：', {
+        console.log('正在發送回覆到 UltraMSG：', { to: toNumber, body: reply });
+        const response = await axios.post(
+            'https://api.ultramsg.com/instance115545/messages/chat',
+            {
+                token: process.env.ULTRAMSG_TOKEN,
+                to: toNumber, // 使用轉換後的號碼
+                body: reply,
+            }
+        );
+
+        console.log('UltraMSG API 回應：', response.data);
+        console.log('回覆已成功發送');
+    } catch (error) {
+        console.error('發送錯誤：', error.response?.data || error.message);
+    }
+
+    res.sendStatus(200);
+});
+
+// 啟動服務器
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
