@@ -18,7 +18,7 @@ app.post('/', async (req, res) => {
     console.log('收到訊息：', JSON.stringify(message, null, 2));
 
     // 從 message.data 中提取 from, body 和 fromMe
-    const from = message.data?.from;
+    const from = message.data?.from; // 例如 "19056588845@c.us"
     const text = message.data?.body;
     const fromMe = message.data?.fromMe;
 
@@ -57,26 +57,22 @@ app.post('/', async (req, res) => {
         const reply = gpt.data.choices[0].message.content;
         console.log('ChatGPT 回應：', reply);
 
-        // 回覆訊息到 UltraMSG，確保回覆發送給訊息發送者
-        console.log('正在發送回覆到 UltraMSG：', { to: from, body: reply });
-        await axios.post(
+        // 將 from 轉換為 +19056588845 格式
+        const toNumber = '+' + from.split('@')[0]; // 從 "19056588845@c.us" 轉為 "+19056588845"
+        console.log('轉換後的回覆目標號碼：', toNumber);
+
+        // 回覆訊息到 UltraMSG，使用轉換後的號碼
+        console.log('正在發送回覆到 UltraMSG：', { to: toNumber, body: reply });
+        const response = await axios.post(
             'https://api.ultramsg.com/instance115545/messages/chat',
             {
                 token: process.env.ULTRAMSG_TOKEN,
-                to: from,
+                to: toNumber, // 使用轉換後的號碼
                 body: reply,
             }
         );
 
+        console.log('UltraMSG API 回應：', response.data);
         console.log('回覆已成功發送');
     } catch (error) {
-        console.error('發送錯誤：', error.response?.data || error.message);
-    }
-
-    res.sendStatus(200);
-});
-
-// 啟動服務器
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+        console.error('發送錯誤：', error
